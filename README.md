@@ -1,4 +1,4 @@
-# Contract Deployer
+# FUNC Contract Deployer for TON
 
 ## Usage
 
