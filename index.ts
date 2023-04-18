@@ -3,7 +3,7 @@
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { Address, TonClient } from "ton";
 import MasterContract from "./MasterContract";
-import { deploy } from "./deployer";
+import { deploy } from "./daoDeployer";
 
 // const test = await getContract();
 
@@ -22,8 +22,8 @@ async function main(address: string) {
   console.log("value:", counterValue.toString());
 }
 
-deploy().then((data) => {
-  main(data);
-});
+// deploy().then((data) => {
+//   // main(data);
+// });
 
-// main("EQDZsSr7q4WP4PE2bZQzwjpv_cq5BAst50P_9-WF3wyR8nX9");
+main("EQCwOMpAzbapf0IjPyfrFhO_QW6Pi-AhWH9qAaoGwvWYWa93");
