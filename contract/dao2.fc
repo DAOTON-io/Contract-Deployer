@@ -1,0 +1,28 @@
+(int,int) load_data() inline {
+  var ds = get_data().begin_parse();
+  return 
+    (
+     ds~load_uint(64),
+     ds~load_uint(64) ;; token_contract
+    );
+}
+
+() save_data(int dao_type, int test) impure inline {
+  set_data(begin_cell()
+    .store_uint(dao_type, 64)
+    .store_uint(test,64)
+    .end_cell());
+}
+
+;; init state
+() recv_internal(cell in_msg_cell) impure {
+  var (dao_type,test ) = load_data();
+
+  save_data(58,0x66656e65726261686365);
+}
+
+
+(int) get_current_data() method_id {
+   var (dao_type,test) = load_data();
+   return (dao_type);
+ }

@@ -1,0 +1,48 @@
+(int, slice, slice, cell, cell) load_data() inline {
+  var ds = get_data().begin_parse();
+  return 
+    (
+     ds~load_uint(64), ;; dao_type
+     ds~load_msg_addr(), ;; token_contract
+     ds~load_msg_addr(), ;; nft_contract
+     ds~load_ref(),  ;; content
+     ds~load_ref()  ;; proposals
+     );
+}
+
+() save_data(int dao_type ,slice token_contract, slice nft_contract ,cell content,cell proposals) impure inline {
+  set_data(begin_cell()
+    .store_uint(dao_type, 64)
+    .store_slice(token_contract)
+    .store_slice(nft_contract)
+    .store_ref(content)
+    .store_ref(proposals)
+    .end_cell());
+}
+
+;; init state
+() recv_internal(cell in_msg_cell) impure {
+  var (dao_type, token_contract, nft_contract,content ,proposals ) = load_data();
+
+
+  save_data(dao_type, token_contract, nft_contract,content ,proposals);
+}
+
+
+(int, slice, slice ,cell, cell) get_current_data() method_id {
+   var (dao_type, token_contract, nft_contract,content,proposals) = load_data();
+   return (dao_type, token_contract, nft_contract,content,proposals);
+ }
+
+;;  () createProposal(int item_index, cell nft_item_code, int amount, cell nft_content) impure {
+;;   cell state_init = calculate_nft_item_state_init(item_index, nft_item_code);
+;;   slice nft_address = calculate_nft_item_address(workchain(), state_init);
+;;   var msg = begin_cell()
+;;             .store_uint(0x18, 6)
+;;             .store_slice(nft_address)
+;;             .store_coins(amount)
+;;             .store_uint(4 + 2 + 1, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 1)
+;;             .store_ref(state_init)
+;;             .store_ref(nft_content);
+;;   send_raw_message(msg.end_cell(), 1); ;; pay transfer fees separately, revert on errors
+;; }
