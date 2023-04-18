@@ -1,15 +1,15 @@
 import { Contract, ContractProvider, Sender, Address, Cell, contractAddress, beginCell } from "ton-core";
+import { DaoContent } from "./models/DaoContent";
 
 export default class DaoContract implements Contract {
-  static createForDeploy(code: Cell, tokenContract: Address, nftCollection: Address): DaoContract {
+  static createForDeploy(code: Cell, tokenContract: Address, nftCollection: Address, daoContent: DaoContent): DaoContract {
     const data = beginCell()
       .storeUint(1, 64)
       .storeAddress(tokenContract)
       .storeAddress(nftCollection)
       .storeRef(
         beginCell()
-          .storeUint(0, 64)
-          .storeBit(false) // forward_payload in this slice, not separate cell
+          .storeBuffer(Buffer.from(JSON.stringify(daoContent)))
           .endCell()
       )
       .storeRef(

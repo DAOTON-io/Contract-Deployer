@@ -19,11 +19,10 @@ async function main(address: string) {
 
   // call the getter on chain
   const counterValue = await contract.getContract();
-  console.log("value:", counterValue.toString());
 }
 
-// deploy().then((data) => {
-//   // main(data);
-// });
+deploy().then((data) => {
+  main(data);
+});
 
-main("EQCwOMpAzbapf0IjPyfrFhO_QW6Pi-AhWH9qAaoGwvWYWa93");
+// main("EQCJrJ837qRKSq2sZWzf0dqHT2eox56M9AFoALLu8WHIz1sv");

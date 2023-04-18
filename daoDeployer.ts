@@ -5,6 +5,7 @@ import { mnemonicToWalletKey } from "ton-crypto";
 import { TonClient, Cell, WalletContractV4, Address } from "ton";
 import { sleep } from "./utils";
 import DaoContract from "./DaoContract";
+import { DaoContent } from "./models/DaoContent";
 
 dotenv.config({ path: ".env" });
 
@@ -16,9 +17,16 @@ export const deploy = async () => {
   // prepare contract's initial code and data cells for deployment
   const contractCode = Cell.fromBoc(fs.readFileSync("contract.cell"))[0]; // compilation output from step 6
   const initialContractValue = Date.now(); // to avoid collisions use current number of milliseconds since epoch as initial value
-  const tokenContract = Address.parse("EQCY3htT0d0y7xIpmZRXuVy8ZuDqsl6aAte5Q45ibCkF120Z");
-  const nftContract = Address.parse("EQCY3htT0d0y7xIpmZRXuVy8ZuDqsl6aAte5Q45ibCkF120Z");
-  const contract = DaoContract.createForDeploy(contractCode, tokenContract, nftContract);
+  const tokenContract = Address.parse("kQDyNhhx8N1Uy_jF4b1cT_CUFLsHKP6IwP6CwpsqBSM1tUJ1");
+  const nftContract = Address.parse("kQDyNhhx8N1Uy_jF4b1cT_CUFLsHKP6IwP6CwpsqBSM1tUJ1");
+
+  const daoContent: DaoContent = {
+    name: "TestDao",
+    description: "Description",
+    image: "image.svg",
+  };
+
+  const contract = DaoContract.createForDeploy(contractCode, tokenContract, nftContract, daoContent);
 
   // exit if contract is already deployed
   console.log("contract address:", contract.address.toString());
