@@ -1,0 +1,6 @@
+Operations for body
+
+0x01 = Create Proposal
+0x02 = Vote Positive
+0x03 = Vote Negative
+0x04 = Vote Abstain

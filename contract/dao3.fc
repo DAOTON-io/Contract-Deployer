@@ -21,11 +21,42 @@
 }
 
 ;; init state
-() recv_internal(cell in_msg_cell) impure {
-  var (dao_type, token_contract, nft_contract,content ,proposals ) = load_data();
+() recv_internal(cell in_msg_cell, slice in_msg_body) impure {
+  var (dao_type, token_contract, nft_contract, content ,proposals ) = load_data();
+
+  ;;  Get sender address
+  var cs = in_msg_cell.begin_parse();
+  var flags = cs~load_uint(4);
+  slice s_addr = cs~load_msg_addr();
+  (int sender_wc, slice sender_addr) = parse_var_addr(s_addr);
+  int member = sender_addr~load_uint(256);
+
+ 
+  if (in_msg_body.slice_empty?()) { ;; empty body
+        save_data(dao_type, token_contract, nft_contract,content , proposals);
+  }
+  else {
+  
+  int op = in_msg_body~load_uint(32);
 
 
-  save_data(dao_type, token_contract, nft_contract,content ,proposals);
+ ;; op1 = create proposal
+  if(op == 1){
+    ;; int time = in_msg_body~load_uint(64); ;; timestamp
+
+  ;;  var newProposals = begin_cell().store_uint(time, 64).end_cell();
+
+    save_data(dao_type, token_contract, nft_contract,content , in_msg_body~load_ref());
+  }
+  if(op == 2){
+
+  }
+  if(op == 3){
+
+  }
+
+  }
+
 }
 
 

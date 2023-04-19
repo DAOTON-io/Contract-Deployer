@@ -19,10 +19,7 @@ export default class MasterContract implements Contract {
 
   getContract = async (provider: ContractProvider) => {
     const { stack } = await provider.get("get_current_data", []);
-    console.log("dao type id: ", stack.readBigNumber().toString());
-    console.log("token address: ", stack.readAddress().toString());
-    console.log("nft address : ", stack.readAddress().toString());
-    console.log(stack.readBuffer().toString());
+
     return stack;
   };
 }

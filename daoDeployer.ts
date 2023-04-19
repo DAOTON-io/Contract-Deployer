@@ -21,12 +21,12 @@ export const deploy = async () => {
   const nftContract = Address.parse("kQDyNhhx8N1Uy_jF4b1cT_CUFLsHKP6IwP6CwpsqBSM1tUJ1");
 
   const daoContent: DaoContent = {
-    name: "TestDao",
-    description: "Description",
-    image: "image.svg",
+    name: "TestDaoooooooo",
+    description: "D22escri23432ßption12121",
+    image: "imageeee.svg",
   };
 
-  const contract = DaoContract.createForDeploy(contractCode, tokenContract, nftContract, daoContent);
+  const contract = DaoContract.createForDeploy(contractCode, 2, tokenContract, nftContract, daoContent);
 
   // exit if contract is already deployed
   console.log("contract address:", contract.address.toString());
