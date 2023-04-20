@@ -4,8 +4,9 @@
   slice token_contract =  ds~load_msg_addr();
   slice nft_contract =  ds~load_msg_addr();
   cell content = ds~load_ref();
-
   cell proposals_ref = ds~load_ref();
+
+  ds.end_parse();
 
   ;; Parse proposals
   ds = proposals_ref.begin_parse();
@@ -98,20 +99,6 @@ return (dao_type, token_contract,nft_contract,content,proposals_seq, proposals_d
 
 (cell) get_proposal() method_id {
    var (dao_type, token_contract, nft_contract,content,proposals_seq,proposals_dict) = load_data();
-    
-    
-     begin_cell()
-        .store_coins(0) ;; yes count
-        .store_coins(0) ;; no count
-        .store_coins(0) ;; abstain count
-        .store_uint(timestamp,64) ;; abstain count
-        .store_ref(begin_cell()
-            .store_coins(treshold_success)
-            .store_coins(treshold_fail)
-        .end_cell())
-        .store_dict(null())
-        .end_cell();
-
 
    return (proposals_dict);
  }
