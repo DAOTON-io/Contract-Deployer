@@ -43,8 +43,8 @@ export default class DaoContract implements Contract {
     });
   }
 
-  getContract = async (provider: ContractProvider) => {
-    const { stack } = await provider.get("get_current_data", []);
+  getDaoData = async (provider: ContractProvider) => {
+    const { stack } = await provider.get("get_dao_data", []);
     console.log(stack);
     console.log("dao type id: ", stack.readBigNumber().toString());
     console.log("token address: ", stack.readAddress().toString());
@@ -55,8 +55,14 @@ export default class DaoContract implements Contract {
     return stack;
   };
 
-  getProposals = async (provider: ContractProvider) => {
-    const { stack } = await provider.get("get_proposals", []);
+  getProposal = async (provider: ContractProvider) => {
+    const { stack } = await provider.get("get_proposal", [
+      {
+        type: "int",
+        value: BigInt(0),
+      },
+    ]);
+
     console.log(stack);
 
     // console.log("PROPS:", stack.readCell());
