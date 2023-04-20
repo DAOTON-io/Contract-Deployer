@@ -12,7 +12,7 @@ export default class DaoContract implements Contract {
           .storeBuffer(Buffer.from(JSON.stringify(daoContent)))
           .endCell()
       )
-      .storeRef(beginCell().endCell())
+      .storeRef(beginCell().storeUint(0, 32).storeDict(null).endCell())
       .endCell();
 
     const workchain = 0; // deploy to workchain 0
@@ -32,7 +32,9 @@ export default class DaoContract implements Contract {
   async sendProposal(provider: ContractProvider, via: Sender) {
     const messageBody = beginCell()
       .storeUint(1, 32) // op (op #1 = create proposal)
-      .storeRef(beginCell().storeUint(Date.now(), 64).endCell())
+      .storeUint(Date.now(), 64) // timestamp
+      .storeUint(100, 32) // success threshold
+      .storeUint(1, 32) // fail threshold
       .endCell();
 
     await provider.internal(via, {
@@ -43,11 +45,21 @@ export default class DaoContract implements Contract {
 
   getContract = async (provider: ContractProvider) => {
     const { stack } = await provider.get("get_current_data", []);
+    console.log(stack);
     console.log("dao type id: ", stack.readBigNumber().toString());
     console.log("token address: ", stack.readAddress().toString());
     console.log("nft address : ", stack.readAddress().toString());
     console.log("content :", stack.readBuffer().toString());
-    console.log("proposal :", stack.readCell());
+    console.log("last proposal id :", stack.readBigNumber().toString());
+    // console.log("PROPS:", stack.readCell());
+    return stack;
+  };
+
+  getProposals = async (provider: ContractProvider) => {
+    const { stack } = await provider.get("get_proposals", []);
+    console.log(stack);
+
+    // console.log("PROPS:", stack.readCell());
     return stack;
   };
 }

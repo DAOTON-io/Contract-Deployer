@@ -19,7 +19,8 @@ async function newContractCreateTest(address: string) {
   const contract = client.open(masterContract);
 
   // call the getter on chain
-  const counterValue = await contract.getContract();
+
+  await contract.getProposals();
 }
 
 // deploy().then((data) => {
@@ -27,7 +28,7 @@ async function newContractCreateTest(address: string) {
 // });
 
 // newContractCreateTest("EQAgsMx-jXIFqVMv2Ph-i9LYc6S-QlBUFwWDMGlpSfrZEIPd");
-createProposalTest("EQCy0lsIwRuChtbitcG1jY9WXCjUiQo2eNIDWCo_UIV-Dzn4").then(() => {
-  newContractCreateTest("EQCy0lsIwRuChtbitcG1jY9WXCjUiQo2eNIDWCo_UIV-Dzn4");
-});
-// newContractCreateTest("EQCmHn9GJSrVArzRUOjgw8kjU0ybEbzy1vu9UwBj247bEtBO");
+// createProposalTest("EQDA_kAnxfUjBWhS-c5_6VtpmvBoqe9GqZAFba2dlwDxepOW").then(() => {
+//   newContractCreateTest("EQBX8tu7unR35yTl1CPXkvYpFolf6I4YFgDgSlnrWNGHPuUO");
+// });
+newContractCreateTest("EQBX8tu7unR35yTl1CPXkvYpFolf6I4YFgDgSlnrWNGHPuUO");
