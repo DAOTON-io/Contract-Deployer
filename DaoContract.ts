@@ -4,7 +4,7 @@ import { DaoContent } from "./models/DaoContent";
 export default class DaoContract implements Contract {
   static createForDeploy(code: Cell, daoTypeId: number, tokenContract: Address, nftCollection: Address, daoContent: DaoContent): DaoContract {
     const data = beginCell()
-      .storeUint(daoTypeId, 64)
+      .storeUint(daoTypeId, 16)
       .storeAddress(tokenContract)
       .storeAddress(nftCollection)
       .storeRef(
@@ -51,7 +51,7 @@ export default class DaoContract implements Contract {
     console.log("nft address : ", stack.readAddress().toString());
     console.log("content :", stack.readBuffer().toString());
     console.log("last proposal id :", stack.readBigNumber().toString());
-    // console.log("PROPS:", stack.readCell());
+
     return stack;
   };
 

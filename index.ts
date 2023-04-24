@@ -25,12 +25,12 @@ async function newContractCreateTest(address: string) {
   await contract.getDaoData();
 }
 
-// deploy().then((data) => {
-//   newContractCreateTest(data);
-// });
+deploy().then((data) => {
+  newContractCreateTest(data);
+});
 
 // newContractCreateTest("EQAgsMx-jXIFqVMv2Ph-i9LYc6S-QlBUFwWDMGlpSfrZEIPd");
-createProposalTest("EQCgswQhtEXBht6GcoddC2bi3E5xzEJeS8duIAGAxjnr2tfU").then(() => {
-  newContractCreateTest("EQCgswQhtEXBht6GcoddC2bi3E5xzEJeS8duIAGAxjnr2tfU");
-});
+// createProposalTest("EQCgswQhtEXBht6GcoddC2bi3E5xzEJeS8duIAGAxjnr2tfU").then(() => {
+//   newContractCreateTest("EQCgswQhtEXBht6GcoddC2bi3E5xzEJeS8duIAGAxjnr2tfU");
+// });
 // newContractCreateTest("EQCIxWE49K2CNT7ddrQpShie57xh1N3NYr1zjWCZHQlm_V5-");
