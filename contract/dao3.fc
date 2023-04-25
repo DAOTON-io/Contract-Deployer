@@ -33,33 +33,34 @@ return (dao_type, token_contract, nft_contract,content, proposals_ref ,proposals
     .end_cell());
 }
 
-;; () create_proposal(int timestamp,int threshold_success,int threshold_fail) impure { 
-;;    var (dao_type, token_contract, nft_contract, content ,proposals_seq,proposals_dict) = load_data();
+(cell) create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,cell proposals_dict,int proposals_seq) impure { 
+    ;; Serialize proposal
+    var container = begin_cell()
+        .store_coins(0) ;; yes count
+        .store_coins(0) ;; no count
+        .store_coins(0) ;; abstain count
+        .store_uint(timestamp,64) ;; expire time
+        .store_ref(begin_cell()
+            .store_coins(threshold_success)
+            .store_coins(threshold_fail)
+        .end_cell())
+        .store_dict(null())
+        .end_cell();
 
-;;     ;; Serialize proposal
-;;     var container = begin_cell()
-;;         .store_coins(0) ;; yes count
-;;         .store_coins(0) ;; no count
-;;         .store_coins(0) ;; abstain count
-;;         .store_uint(timestamp,64) ;; expire time
-;;         .store_ref(begin_cell()
-;;             .store_coins(threshold_success)
-;;             .store_coins(threshold_fail)
-;;         .end_cell())
-;;         .store_dict(null())
-;;         .end_cell();
+    ;; Store ref
+    var data = begin_cell().store_ref(container);
 
-;;     ;; Store ref
-;;     var data = begin_cell().store_ref(container);
+    var dict =  udict_set_builder(proposals_dict, 32, proposals_seq + 1 , data);
 
-;;     proposals_dict = udict_set_builder(proposals_dict, 32, proposals_seq + 1 , data);
-
-;;     save_data(dao_type, token_contract, nft_contract, content ,proposals_seq + 1, proposals_dict);
-;; }
+  return begin_cell().store_ref(begin_cell()
+            .store_uint(proposals_seq + 1, 32)
+            .store_dict(dict)
+        .end_cell()).end_cell();
+}
 
 ;; init state
 () recv_internal(cell in_msg_cell, slice in_msg_body) impure {
-  var (dao_type, token_contract, nft_contract, content ,proposals_ref,proposals_seq, proposals_dict  ) = load_data();
+  var (dao_type, token_contract, nft_contract, content ,proposals_ref, proposals_seq, proposals_dict  ) = load_data();
 
   ;;  Get sender address
   var cs = in_msg_cell.begin_parse();
@@ -82,7 +83,9 @@ return (dao_type, token_contract, nft_contract,content, proposals_ref ,proposals
    int success_threshold = in_msg_body~load_uint(32); ;; success_threshold
    int fail_threshold = in_msg_body~load_uint(32); ;; fail_threshold
 
-  ;;  create_proposal(time, success_threshold, fail_threshold);
+   var proposal = create_proposal(time, success_threshold, fail_threshold , proposals_dict , proposals_seq);
+
+   save_data(dao_type, token_contract, nft_contract, content , proposal);
   }
   if(op == 2){
 
