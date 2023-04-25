@@ -26,11 +26,16 @@ async function newContractCreateTest(address: string) {
 }
 
 deploy().then((data) => {
-  newContractCreateTest(data);
+  console.log("1");
+  newContractCreateTest(data).then(() => {
+    console.log("2");
+    createProposalTest(data).then(() => {
+      console.log("3");
+      newContractCreateTest(data);
+    });
+  });
 });
 
 // newContractCreateTest("EQAgsMx-jXIFqVMv2Ph-i9LYc6S-QlBUFwWDMGlpSfrZEIPd");
-// createProposalTest("EQCgswQhtEXBht6GcoddC2bi3E5xzEJeS8duIAGAxjnr2tfU").then(() => {
-//   newContractCreateTest("EQCgswQhtEXBht6GcoddC2bi3E5xzEJeS8duIAGAxjnr2tfU");
-// });
+
 // newContractCreateTest("EQCIxWE49K2CNT7ddrQpShie57xh1N3NYr1zjWCZHQlm_V5-");

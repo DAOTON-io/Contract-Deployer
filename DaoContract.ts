@@ -33,8 +33,8 @@ export default class DaoContract implements Contract {
     const messageBody = beginCell()
       .storeUint(1, 32) // op (op #1 = create proposal)
       .storeUint(Date.now(), 64) // timestamp
-      .storeUint(100, 32) // success threshold
-      .storeUint(1, 32) // fail threshold
+      .storeCoins(100) // success threshold
+      .storeCoins(1) // fail threshold
       .endCell();
 
     await provider.internal(via, {
@@ -46,11 +46,11 @@ export default class DaoContract implements Contract {
   getDaoData = async (provider: ContractProvider) => {
     const { stack } = await provider.get("get_dao_data", []);
     console.log(stack);
-    console.log("dao type id: ", stack.readBigNumber().toString());
-    console.log("token address: ", stack.readAddress().toString());
-    console.log("nft address : ", stack.readAddress().toString());
-    console.log("content :", stack.readBuffer().toString());
-    console.log("last proposal id :", stack.readBigNumber().toString());
+    // console.log("dao type id: ", stack.readBigNumber().toString());
+    // console.log("token address: ", stack.readAddress().toString());
+    // console.log("nft address : ", stack.readAddress().toString());
+    // console.log("content :", stack.readBuffer().toString());
+    // console.log("last proposal id :", stack.readBigNumber().toString());
 
     return stack;
   };

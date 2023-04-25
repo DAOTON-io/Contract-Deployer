@@ -52,15 +52,15 @@ return (dao_type, token_contract, nft_contract,content, proposals_ref ,proposals
 
     var dict =  udict_set_builder(proposals_dict, 32, proposals_seq + 1 , data);
 
-  return begin_cell().store_ref(begin_cell()
+  return begin_cell()
             .store_uint(proposals_seq + 1, 32)
-            .store_dict(dict)
-        .end_cell()).end_cell();
+            .store_dict(proposals_dict)
+        .end_cell();
 }
 
 ;; init state
 () recv_internal(cell in_msg_cell, slice in_msg_body) impure {
-  var (dao_type, token_contract, nft_contract, content ,proposals_ref, proposals_seq, proposals_dict  ) = load_data();
+  var (dao_type, token_contract, nft_contract, content ,proposals_ref, proposals_seq, proposals_dict) = load_data();
 
   ;;  Get sender address
   var cs = in_msg_cell.begin_parse();
@@ -115,8 +115,8 @@ return (dao_type, token_contract, nft_contract,content, proposals_ref ,proposals
    return (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain);
  }
 
-(int, slice, slice ,cell,int) get_dao_data() method_id {
-   var (dao_type, token_contract, nft_contract, content ,proposals_ref,proposals_seq, proposals_dict) = load_data();
+(int, slice, slice ,cell,cell,int) get_dao_data() method_id {
+   var (dao_type, token_contract, nft_contract, content ,proposals_ref,proposals_seq, proposals_dict ) = load_data();
 
-   return (dao_type, token_contract, nft_contract,content,proposals_seq);
+   return (dao_type, token_contract, nft_contract,content,proposals_ref,proposals_seq);
  }

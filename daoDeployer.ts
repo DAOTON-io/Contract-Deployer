@@ -22,8 +22,8 @@ export const deploy = async () => {
 
   const daoContent: DaoContent = {
     name: "TestDao",
-    description: "D22escri23432ßption12121",
-    image: "imageeeeeeeeeee.svg",
+    description: "D23423422escr111ßption12121",
+    image: "imageeeeeeeeeeeeee.svg",
   };
 
   const contract = DaoContract.createForDeploy(contractCode, 2, tokenContract, nftContract, daoContent);
