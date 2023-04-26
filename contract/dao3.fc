@@ -52,10 +52,10 @@ return (dao_type, token_contract, nft_contract,content, proposals_ref ,proposals
 
   var dict = udict_set_builder(proposals_dict, 32, proposals_seq + 1 , data);
 
-  return store_ref(begin_cell()
+  return begin_cell().store_ref(begin_cell()
             .store_uint(proposals_seq + 1, 32)
             .store_dict(dict)
-        .end_cell());
+        .end_cell()).end_cell();
 }
 
 ;; init state
@@ -80,8 +80,8 @@ return (dao_type, token_contract, nft_contract,content, proposals_ref ,proposals
  ;; op1 = create proposal
   if(op == 1){
    int time = in_msg_body~load_uint(64); ;; timestamp
-   int success_threshold = in_msg_body~load_uint(32); ;; success_threshold
-   int fail_threshold = in_msg_body~load_uint(32); ;; fail_threshold
+   int success_threshold = in_msg_body~load_coins(); ;; success_threshold
+   int fail_threshold = in_msg_body~load_coins(); ;; fail_threshold
 
    var proposal = create_proposal(time, success_threshold, fail_threshold , proposals_dict , proposals_seq);
 
