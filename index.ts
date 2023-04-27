@@ -39,6 +39,6 @@ deploy().then((data) => {
 //   console.log("3");
 //   newContractCreateTest("EQCdFH26wm33W2k5ld0tIJfOweCy28I30byBTytLXcS1hMEv");
 // });
-// newContractCreateTest("EQA_I3TWKZLud5N9yxJJhznsfkx8NIWz0rV0kAgSbr9P-fvt");
+newContractCreateTest("EQBMT6bGtC50XjJ9HEaz6jMn9VJv3EdbUm1021MY09I3ZwEv");
 
 // newContractCreateTest("EQBwLvMZhdRUgPBiQRYoeIhKldUWZDcm8wVtL0pJJdrBgpDb");

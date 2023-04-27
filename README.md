@@ -7,7 +7,7 @@
 2 - Build your contracts with using func-js same as this example
 
 ```bash
-npx func-js contract/stdlib.fc contract/dao3.fc --boc contract.cell
+npx func-js contract/stdlib.fc contract/dao4.fc --boc contract.cell
 ```
 
 3 - Run start script and get your contract address.

@@ -23,7 +23,7 @@ return (dao_type, token_contract, nft_contract,content, proposals_ref ,proposals
    
 }
 
-() save_data(int dao_type ,slice token_contract, slice nft_contract ,cell content, cell proposals) impure inline {
+cell save_data(int dao_type ,slice token_contract, slice nft_contract ,cell content, cell proposals) {
   set_data(begin_cell()
     .store_uint(dao_type, 16)
     .store_slice(token_contract)
@@ -33,7 +33,7 @@ return (dao_type, token_contract, nft_contract,content, proposals_ref ,proposals
     .end_cell());
 }
 
-(cell) create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,cell proposals_dict,int proposals_seq) impure { 
+cell create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,cell proposals_dict,int proposals_seq) impure { 
     ;; Serialize proposal
     var container = begin_cell()
         .store_coins(0) ;; yes count
