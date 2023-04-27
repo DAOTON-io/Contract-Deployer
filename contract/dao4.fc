@@ -1,0 +1,111 @@
+(int, slice, slice, cell,int, cell) load_data() inline {
+  var ds = get_data().begin_parse();
+ 
+  ;; "1,2,3,4,5,6,7"
+  int dao_type = ds~load_uint(16);
+
+  slice token_contract =  ds~load_msg_addr();
+  slice nft_contract =  ds~load_msg_addr();
+  cell content = ds~load_ref();
+  int proposals_seq = ds~load_uint(32);
+  cell proposals_ref = ds~load_ref();
+
+  ds.end_parse();
+
+  ;; ;; Parse proposals
+  ds = proposals_ref.begin_parse();
+  cell proposals_dict = ds~load_dict();
+
+  ds.end_parse();
+
+return (dao_type, token_contract, nft_contract,content ,proposals_seq,proposals_dict);
+}
+
+() save_data(int dao_type ,slice token_contract, slice nft_contract ,cell content, int proposals_seq,cell proposals_dict) impure inline {
+  set_data(begin_cell()
+    .store_uint(dao_type, 16)
+    .store_slice(token_contract)
+    .store_slice(nft_contract)
+    .store_ref(content)
+    .store_uint(proposals_seq, 32)
+    .store_ref(begin_cell()
+            .store_dict(proposals_dict)
+    .end_cell())
+    .end_cell());
+}
+
+(cell) create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,int proposals_seq, cell proposals_dict) method_id { 
+    ;; Serialize proposal
+    var container = begin_cell()
+        .store_coins(0) ;; yes count
+        .store_coins(0) ;; no count
+        .store_coins(0) ;; abstain count
+        .store_uint(timestamp,64) ;; expire time
+        .store_ref(begin_cell()
+            .store_coins(threshold_success)
+            .store_coins(threshold_fail)
+        .end_cell())
+        .store_dict(null())
+        .end_cell();
+
+    ;; Store ref
+  var data = begin_cell().store_ref(container);
+
+   return udict_set_builder(proposals_dict, 32, proposals_seq , data);
+}
+
+;; init state
+() recv_internal(cell in_msg_cell, slice in_msg_body) impure {
+  var (dao_type, token_contract, nft_contract, content , proposals_seq , proposals_dict) = load_data();
+
+    if (in_msg_body.slice_empty?()) { ;; ignore empty messages
+        return ();
+    }
+ 
+  ;;  Get sender address
+  var cs = in_msg_cell.begin_parse();
+  var flags = cs~load_uint(4);
+  slice s_addr = cs~load_msg_addr();
+  (int sender_wc, slice sender_addr) = parse_var_addr(s_addr);
+  int member = sender_addr~load_uint(256);
+
+  int op = in_msg_body~load_uint(32);
+
+ ;; op1 = create proposal
+  if(op == 1){
+   int time = in_msg_body~load_uint(64); ;; timestamp
+   int success_threshold = in_msg_body~load_coins(); ;; success_threshold
+   int fail_threshold = in_msg_body~load_coins(); ;; fail_threshold
+
+   cell new_proposals_dict = create_proposal(time, success_threshold, fail_threshold , proposals_seq, proposals_dict);
+   int new_proposals_seq = proposals_seq + 1;
+
+
+   save_data(dao_type, token_contract, nft_contract,content,new_proposals_seq, new_proposals_dict);
+  return ();
+  }
+  
+}
+
+;; (int,int,int) get_proposal(int id) method_id {
+;;   var (dao_type, token_contract, nft_contract, content ,proposals_ref,proposals_seq, proposals_dict  ) = load_data();
+
+;;    var (itm, found) = proposals_dict.udict_get?(32, id);
+
+;;     var cl = itm~load_ref();
+;;     itm.end_parse();
+;;     var cs = cl.begin_parse();
+
+;;     ;; Read
+;;     int proposal_voted_yes = cs~load_coins();
+;;     int proposal_voted_no = cs~load_coins();
+;;     int proposal_voted_abstain = cs~load_coins();
+
+;;    return (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain);
+;;  }
+
+(int, slice, slice ,cell,int,cell) get_dao_data() method_id {
+   var (dao_type, token_contract, nft_contract, content ,proposals_seq , proposals_dict ) = load_data();
+
+   return (dao_type, token_contract, nft_contract,content, proposals_seq,proposals_dict);
+ }

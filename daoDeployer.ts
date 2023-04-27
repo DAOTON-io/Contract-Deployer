@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 import { mnemonicToWalletKey } from "ton-crypto";
 import { TonClient, Cell, WalletContractV4, Address } from "ton";
-import { sleep } from "./utils";
+import { makeid, sleep } from "./utils";
 import DaoContract from "./DaoContract";
 import { DaoContent } from "./models/DaoContent";
 
@@ -21,9 +21,9 @@ export const deploy = async () => {
   const nftContract = Address.parse("kQDyNhhx8N1Uy_jF4b1cT_CUFLsHKP6IwP6CwpsqBSM1tUJ1");
 
   const daoContent: DaoContent = {
-    name: "TestDao",
-    description: "D23423422escr111ßption12121",
-    image: "imageeeeeeeeeeeeee.svg",
+    name: makeid(5),
+    description: makeid(5),
+    image: makeid(5),
   };
 
   const contract = DaoContract.createForDeploy(contractCode, 2, tokenContract, nftContract, daoContent);
