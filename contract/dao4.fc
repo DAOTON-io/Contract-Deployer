@@ -8,12 +8,10 @@
   slice nft_contract =  ds~load_msg_addr();
   cell content = ds~load_ref();
   int proposals_seq = ds~load_uint(32);
-  cell proposals_ref = ds~load_ref();
+  ;; cell proposals_ref = ds~load_ref();
 
-  ds.end_parse();
 
   ;; ;; Parse proposals
-  ds = proposals_ref.begin_parse();
   cell proposals_dict = ds~load_dict();
 
   ds.end_parse();
@@ -28,59 +26,53 @@ return (dao_type, token_contract, nft_contract,content ,proposals_seq,proposals_
     .store_slice(nft_contract)
     .store_ref(content)
     .store_uint(proposals_seq, 32)
-    .store_ref(begin_cell()
-            .store_dict(proposals_dict)
-    .end_cell())
+    .store_dict(proposals_dict)
     .end_cell());
 }
 
 cell create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,int proposals_seq, cell proposals_dict) { 
     ;; Serialize proposal
     var container = begin_cell()
-        .store_coins(0) ;; yes count
-        .store_coins(0) ;; no count
-        .store_coins(0) ;; abstain count
+        .store_uint(0,32) ;; yes count
+        .store_uint(0,32) ;; no count
+        .store_uint(0,32) ;; abstain count
         .store_uint(timestamp,64) ;; expire time
         .store_ref(begin_cell()
-            .store_coins(threshold_success)
-            .store_coins(threshold_fail)
+            .store_uint(threshold_success,32)
+            .store_uint(threshold_fail,32)
         .end_cell())
-        .store_dict(null())
-        .end_cell();
+        .store_dict(null());
 
-    ;; Store ref
-  var data = begin_cell().store_ref(container);
+  return udict_set_builder(proposals_dict,32, proposals_seq , container);
 
-  return udict_set_builder(proposals_dict, 32, proposals_seq , data);
 }
 
 ;; init state
 () recv_internal(cell in_msg_cell, slice in_msg_body) impure {
   var (dao_type, token_contract, nft_contract, content , proposals_seq , proposals_dict) = load_data();
 
-    if (in_msg_body.slice_empty?()) { ;; ignore empty messages
+  if (in_msg_body.slice_empty?()) { ;; ignore empty messages
         return ();
-    }
+  }
  
   ;;  Get sender address
-  var cs = in_msg_cell.begin_parse();
-  var flags = cs~load_uint(4);
-  slice s_addr = cs~load_msg_addr();
-  (int sender_wc, slice sender_addr) = parse_var_addr(s_addr);
-  int member = sender_addr~load_uint(256);
+  ;; var cs = in_msg_cell.begin_parse();
+  ;; var flags = cs~load_uint(4);
+  ;; slice s_addr = cs~load_msg_addr();
+  ;; (int sender_wc, slice sender_addr) = parse_var_addr(s_addr);
+  ;; int member = sender_addr~load_uint(256);
 
   int op = in_msg_body~load_uint(32);
 
  ;; op1 = create proposal
   if(op == 1){
    int time = in_msg_body~load_uint(64); ;; timestamp
-   int success_threshold = in_msg_body~load_coins(); ;; success_threshold
-   int fail_threshold = in_msg_body~load_coins(); ;; fail_threshold
+   int success_threshold = in_msg_body~load_uint(32); ;; success_threshold
+   int fail_threshold = in_msg_body~load_uint(32); ;; fail_threshold
+       
+    proposals_dict = create_proposal(time, success_threshold, fail_threshold , proposals_seq, proposals_dict);
 
-   proposals_dict =  create_proposal(time, success_threshold, fail_threshold , proposals_seq, proposals_dict);
-   proposals_seq = proposals_seq + 1;
-
-   save_data(dao_type, token_contract, nft_contract,content,proposals_seq, proposals_dict);
+   save_data(dao_type, token_contract, nft_contract,content, proposals_seq + 1, proposals_dict);
    return ();
   }
   
@@ -105,6 +97,16 @@ cell create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,i
 
 (int, slice, slice ,cell,int,cell) get_dao_data() method_id {
    var (dao_type, token_contract, nft_contract, content ,proposals_seq , proposals_dict ) = load_data();
+  ;; var (itm, found) = proposals_dict.udict_get?(32, 1);
+  ;;  var cl = itm~load_ref();
+  ;;   itm.end_parse();
+  ;;   var cs = cl.begin_parse();
 
-   return (dao_type, token_contract, nft_contract,content, proposals_seq,proposals_dict);
+    ;; Read
+    ;; int proposal_voted_yes = cs~load_uint(32);
+    ;; int proposal_voted_no = cs~load_uint(32);
+    ;; int proposal_voted_abstain = cs~load_uint(32);
+    ;; int time = cs~load_uint(64);
+
+   return (dao_type, token_contract, nft_contract,content, proposals_seq, proposals_dict);
  }

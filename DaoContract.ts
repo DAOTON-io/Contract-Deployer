@@ -1,4 +1,4 @@
-import { Contract, ContractProvider, Sender, Address, Cell, contractAddress, beginCell } from "ton-core";
+import { Contract, ContractProvider, Sender, Address, Cell, contractAddress, beginCell, Dictionary } from "ton-core";
 import { DaoContent } from "./models/DaoContent";
 
 export default class DaoContract implements Contract {
@@ -13,7 +13,7 @@ export default class DaoContract implements Contract {
           .endCell()
       )
       .storeUint(0, 32)
-      .storeRef(beginCell().storeDict(null).endCell())
+      .storeDict(null)
       .endCell();
 
     const workchain = 0; // deploy to workchain 0
@@ -24,9 +24,16 @@ export default class DaoContract implements Contract {
   constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
   async sendDeploy(provider: ContractProvider, via: Sender) {
+    // const messageBody = beginCell()
+    //   .storeUint(1, 32) // op (op #1 = create proposal)
+    //   .storeUint(Date.now(), 64) // timestamp
+    //   .storeUint(100, 32) // success threshold
+    //   .storeUint(1, 32) // fail threshold
+    //   .endCell();
     await provider.internal(via, {
       value: "0.01", // send 0.01 TON to contract for rent
       bounce: false,
+      // body: messageBody,
     });
   }
 
@@ -34,12 +41,12 @@ export default class DaoContract implements Contract {
     const messageBody = beginCell()
       .storeUint(1, 32) // op (op #1 = create proposal)
       .storeUint(Date.now(), 64) // timestamp
-      .storeCoins(100) // success threshold
-      .storeCoins(1) // fail threshold
+      .storeUint(100, 32) // success threshold
+      .storeUint(5, 32) // fail threshold
       .endCell();
 
     await provider.internal(via, {
-      value: "0.002", // send 0.002 TON for gas
+      value: "0.01", // send 0.002 TON for gas
       body: messageBody,
     });
   }
