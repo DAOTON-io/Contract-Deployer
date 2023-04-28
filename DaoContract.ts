@@ -66,12 +66,14 @@ export default class DaoContract implements Contract {
   };
 
   getProposal = async (provider: ContractProvider) => {
-    const { stack } = await provider.get("get_proposal", [
-      {
-        type: "int",
-        value: BigInt(0),
-      },
-    ]);
+    // const { stack } = await provider.get("get_proposal", [
+    //   {
+    //     type: "int",
+    //     value: BigInt(1),
+    //   },
+    // ]);
+
+    const { stack } = await provider.get("get_proposal", []);
 
     console.log(stack);
 

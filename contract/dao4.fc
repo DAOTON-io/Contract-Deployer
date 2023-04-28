@@ -55,12 +55,12 @@ cell create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,i
         return ();
   }
  
-  ;;  Get sender address
-  ;; var cs = in_msg_cell.begin_parse();
-  ;; var flags = cs~load_uint(4);
-  ;; slice s_addr = cs~load_msg_addr();
-  ;; (int sender_wc, slice sender_addr) = parse_var_addr(s_addr);
-  ;; int member = sender_addr~load_uint(256);
+  ;; Get sender address
+  var cs = in_msg_cell.begin_parse();
+  var flags = cs~load_uint(4);
+  slice s_addr = cs~load_msg_addr();
+  (int sender_wc, slice sender_addr) = parse_var_addr(s_addr);
+  int member = sender_addr~load_uint(256);
 
   int op = in_msg_body~load_uint(32);
 
@@ -78,35 +78,35 @@ cell create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,i
   
 }
 
-;; (int,int,int) get_proposal(int id) method_id {
-;;   var (dao_type, token_contract, nft_contract, content ,proposals_ref,proposals_seq, proposals_dict  ) = load_data();
+(int,int,int,int,int,int) get_proposal(int id) method_id {
+  var (dao_type, token_contract, nft_contract, content ,proposals_seq, proposals_dict ) = load_data();
 
-;;    var (itm, found) = proposals_dict.udict_get?(32, id);
+   var (itm, found) = proposals_dict.udict_get?(32, 1);
 
-;;     var cl = itm~load_ref();
-;;     itm.end_parse();
-;;     var cs = cl.begin_parse();
+    var cl = itm~load_ref();
+    itm.end_parse();
+    var cs = cl.begin_parse();
 
-;;     ;; Read
-;;     int proposal_voted_yes = cs~load_coins();
-;;     int proposal_voted_no = cs~load_coins();
-;;     int proposal_voted_abstain = cs~load_coins();
+    ;; Read
+    int proposal_voted_yes = cs~load_uint(32);
+    int proposal_voted_no = cs~load_uint(32);
+    int proposal_voted_abstain = cs~load_uint(32);
+    int timestamp = cs~load_uint(64);
 
-;;    return (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain);
-;;  }
+    cell threshold_ref = cs~load_ref();
+
+    cs.end_parse();
+
+    cs = threshold_ref.begin_parse();
+    int success_threshold = cs~load_uint(32);
+    int fail_threshold = cs~load_uint(32);
+   
+    cs.end_parse();
+   return (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold);
+ }
 
 (int, slice, slice ,cell,int,cell) get_dao_data() method_id {
    var (dao_type, token_contract, nft_contract, content ,proposals_seq , proposals_dict ) = load_data();
-  ;; var (itm, found) = proposals_dict.udict_get?(32, 1);
-  ;;  var cl = itm~load_ref();
-  ;;   itm.end_parse();
-  ;;   var cs = cl.begin_parse();
-
-    ;; Read
-    ;; int proposal_voted_yes = cs~load_uint(32);
-    ;; int proposal_voted_no = cs~load_uint(32);
-    ;; int proposal_voted_abstain = cs~load_uint(32);
-    ;; int time = cs~load_uint(64);
 
    return (dao_type, token_contract, nft_contract,content, proposals_seq, proposals_dict);
  }
