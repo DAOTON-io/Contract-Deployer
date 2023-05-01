@@ -30,9 +30,10 @@ return (dao_type, token_contract, nft_contract,content ,proposals_seq,proposals_
     .end_cell());
 }
 
-cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, cell proposals_dict, int proposal_id, int yes,int no, int abstain) { 
+cell design_proposal(int owner,int timestamp ,int threshold_success ,int threshold_fail, cell proposals_dict, int proposal_id, int yes,int no, int abstain) { 
     ;; Serialize proposal
     var container = begin_cell()
+        .store_uint(owner,256) ;; proposal creater = master of proposal for cancel , execute ect.
         .store_uint(yes,32) ;; yes count
         .store_uint(no,32) ;; no count
         .store_uint(abstain,32) ;; abstain count
@@ -46,12 +47,13 @@ cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, c
   return udict_set_builder(proposals_dict,32, proposal_id , container);
 }
 
-(int,int,int,int,int,int) get_proposal(int id) method_id {
+(int,int,int,int,int,int,int) get_proposal(int id) method_id {
   var (dao_type, token_contract, nft_contract, content ,proposals_seq, proposals_dict ) = load_data();
 
     var (itm, found) = proposals_dict.udict_get?(32, id);
 
     ;; Read
+    int owner = itm~load_uint(256);
     int proposal_voted_yes = itm~load_uint(32);
     int proposal_voted_no = itm~load_uint(32);
     int proposal_voted_abstain = itm~load_uint(32);
@@ -64,7 +66,7 @@ cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, c
 
     threshold_data.end_parse();
 
-   return (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold);
+   return (owner,proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold);
 }
 
 ;; init state
@@ -90,7 +92,7 @@ cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, c
    int success_threshold = in_msg_body~load_uint(32); ;; success_threshold
    int fail_threshold = in_msg_body~load_uint(32); ;; fail_threshold
        
-   proposals_dict = design_proposal(timestamp, success_threshold, fail_threshold , proposals_dict,proposals_seq ,0 , 0 , 0);
+   proposals_dict = design_proposal(member,timestamp, success_threshold, fail_threshold , proposals_dict,proposals_seq ,0 , 0 , 0);
 
    save_data(dao_type, token_contract, nft_contract,content, proposals_seq + 1, proposals_dict);
    return ();
@@ -102,7 +104,7 @@ cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, c
   int proposal_id = in_msg_body~load_uint(32);
   int vote = in_msg_body~load_uint(2);
    
-  var (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold) = get_proposal(proposal_id);
+  var (owner,proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold) = get_proposal(proposal_id);
   
   ;; abstain vote
   if(vote == 0){
@@ -119,7 +121,7 @@ cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, c
     proposal_voted_no = proposal_voted_no + 1;
   }
   
-  proposals_dict = design_proposal(timestamp, success_threshold, fail_threshold , proposals_dict,proposal_id ,proposal_voted_yes , proposal_voted_no, proposal_voted_abstain);
+  proposals_dict = design_proposal(owner,timestamp, success_threshold, fail_threshold , proposals_dict,proposal_id ,proposal_voted_yes , proposal_voted_no, proposal_voted_abstain);
 
   save_data(dao_type, token_contract, nft_contract,content, proposals_seq, proposals_dict);
   return ();
