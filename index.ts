@@ -22,7 +22,7 @@ async function newContractCreateTest(address: string) {
 
   // await contract.getProposal();
   // await contract.getProposal();
-  await contract.getProposal(2);
+  await contract.getProposal(0);
 }
 
 // deploy().then((data) => {
@@ -35,10 +35,10 @@ async function newContractCreateTest(address: string) {
 //   //   });
 //   // });
 // });
-// createProposalTest("EQByskhrXntRZVHuuo7uzfM7U_z0z8JvNrvSGeqjOYJ-ibn4").then(() => {
+// createProposalTest("EQCF_dJ1iYHJuFxiozs_pSkr5kSzDpCFig8jxo_qCbEPqgf6").then(() => {
 //   console.log("3");
 //   // newContractCreateTest("EQCM32Frx8tFMBt673-BVz0KblSurtEIIckKAGietjeAj2Tb");
 // });
-newContractCreateTest("EQByskhrXntRZVHuuo7uzfM7U_z0z8JvNrvSGeqjOYJ-ibn4");
+newContractCreateTest("EQCF_dJ1iYHJuFxiozs_pSkr5kSzDpCFig8jxo_qCbEPqgf6");
 
 // newContractCreateTest("EQB8cYGf35_4oaleOhm6I7jk9KxXCHXslGX5G-aTIIcj2SFc");

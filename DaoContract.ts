@@ -51,6 +51,19 @@ export default class DaoContract implements Contract {
     });
   }
 
+  async vote(provider: ContractProvider, via: Sender) {
+    const messageBody = beginCell()
+      .storeUint(2, 32) // op (op #2 = vote)
+      .storeUint(0, 32) // propsal_id
+      .storeUint(1, 2) // vote
+      .endCell();
+
+    await provider.internal(via, {
+      value: "0.01", // send 0.002 TON for gas
+      body: messageBody,
+    });
+  }
+
   getDaoData = async (provider: ContractProvider) => {
     try {
       const { stack } = await provider.get("get_dao_data", []);
