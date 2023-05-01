@@ -30,7 +30,7 @@ return (dao_type, token_contract, nft_contract,content ,proposals_seq,proposals_
     .end_cell());
 }
 
-cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, cell proposals_dict, int index, int yes,int no, int abstain) { 
+cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, cell proposals_dict, int proposal_id, int yes,int no, int abstain) { 
     ;; Serialize proposal
     var container = begin_cell()
         .store_uint(yes,32) ;; yes count
@@ -43,7 +43,28 @@ cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, c
         .end_cell())
         .store_dict(null());
 
-  return udict_set_builder(proposals_dict,32, index , container);
+  return udict_set_builder(proposals_dict,32, proposal_id , container);
+}
+
+(int,int,int,int,int,int) get_proposal(int id) method_id {
+  var (dao_type, token_contract, nft_contract, content ,proposals_seq, proposals_dict ) = load_data();
+
+    var (itm, found) = proposals_dict.udict_get?(32, id);
+
+    ;; Read
+    int proposal_voted_yes = itm~load_uint(32);
+    int proposal_voted_no = itm~load_uint(32);
+    int proposal_voted_abstain = itm~load_uint(32);
+    int timestamp = itm~load_uint(64);
+    cell threshold_ref = itm~load_ref();
+
+    var threshold_data = threshold_ref.begin_parse();
+    int success_threshold = threshold_data~load_uint(32);
+    int fail_threshold = threshold_data~load_uint(32);
+
+    threshold_data.end_parse();
+
+   return (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold);
 }
 
 ;; init state
@@ -75,55 +96,36 @@ cell design_proposal(int timestamp ,int threshold_success ,int threshold_fail, c
    return ();
   } 
 
-  ;; ;; op2 = vote
-  ;; if(op == 2) {
-  ;; ;; 0 = Abstain 1 = Yes 2 = No
-  ;; int propsal_id = in_msg_body~load_uint(32);
-  ;; int vote = in_msg~load_uint(2);
-
-
-
-  ;; ;; abstain vote
-  ;; if(vote == 0){
-
-  ;; } 
-
-  ;; ;; yes vote
-  ;; if(vote == 1){
-
-  ;; }
-
-  ;; ;; no vote
-  ;; if(vote == 2){
-
-  ;; }
+  ;; op2 = vote
+  if(op == 2){
+  ;; 0 = Abstain 1 = Yes 2 = No
+  int proposal_id = in_msg_body~load_uint(32);
+  int vote = in_msg_body~load_uint(2);
+   
+  var (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold) = get_proposal(proposal_id);
   
-  ;; return ();
-  ;; }
+  ;; abstain vote
+  if(vote == 0){
+    proposal_voted_abstain = proposal_voted_abstain + 1;
+  } 
+
+  ;; yes vote
+  if(vote == 1){
+    proposal_voted_yes = proposal_voted_yes + 1;
+  }
+
+  ;; no vote
+  if(vote == 2){
+    proposal_voted_no = proposal_voted_no + 1;
+  }
+  
+  proposals_dict = design_proposal(timestamp, success_threshold, fail_threshold , proposals_dict,proposal_id ,proposal_voted_yes , proposal_voted_no, proposal_voted_abstain);
+
+  save_data(dao_type, token_contract, nft_contract,content, proposals_seq, proposals_dict);
+  return ();
+  }
   
 }
-
-(int,int,int,int,int,int) get_proposal(int id) method_id {
-  var (dao_type, token_contract, nft_contract, content ,proposals_seq, proposals_dict ) = load_data();
-
-   var (itm, found) = proposals_dict.udict_get?(32, id);
-
-    ;; Read
-    int proposal_voted_yes = itm~load_uint(32);
-    int proposal_voted_no = itm~load_uint(32);
-    int proposal_voted_abstain = itm~load_uint(32);
-    int timestamp = itm~load_uint(64);
-    cell threshold_ref = itm~load_ref();
-
-    var threshold_data = threshold_ref.begin_parse();
-    int success_threshold = threshold_data~load_uint(32);
-    int fail_threshold = threshold_data~load_uint(32);
-
-    threshold_data.end_parse();
-
-   return (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold);
-}
-
 
 (int, slice, slice ,cell,int,cell) get_dao_data() method_id {
    var (dao_type, token_contract, nft_contract, content ,proposals_seq , proposals_dict ) = load_data();
