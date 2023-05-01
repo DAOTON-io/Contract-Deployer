@@ -78,32 +78,28 @@ cell create_proposal(int timestamp ,int threshold_success ,int threshold_fail ,i
   
 }
 
-(int,int,int,int,int,int) get_proposal(int id) method_id {
+(int,int,int,int ,int ,int) get_proposal(int id) method_id {
   var (dao_type, token_contract, nft_contract, content ,proposals_seq, proposals_dict ) = load_data();
 
-   var (itm, found) = proposals_dict.udict_get?(32, 1);
-
-    var cl = itm~load_ref();
-    itm.end_parse();
-    var cs = cl.begin_parse();
+   var (itm, found) = proposals_dict.udict_get?(32, id);
 
     ;; Read
-    int proposal_voted_yes = cs~load_uint(32);
-    int proposal_voted_no = cs~load_uint(32);
-    int proposal_voted_abstain = cs~load_uint(32);
-    int timestamp = cs~load_uint(64);
+    int proposal_voted_yes = itm~load_uint(32);
+    int proposal_voted_no = itm~load_uint(32);
+    int proposal_voted_abstain = itm~load_uint(32);
+    int timestamp = itm~load_uint(64);
+    cell threshold_ref = itm~load_ref();
 
-    cell threshold_ref = cs~load_ref();
+    var threshold_data = threshold_ref.begin_parse();
+    int success_threshold = threshold_data~load_uint(32);
+    int fail_threshold = threshold_data~load_uint(32);
 
-    cs.end_parse();
+    threshold_data.end_parse();
 
-    cs = threshold_ref.begin_parse();
-    int success_threshold = cs~load_uint(32);
-    int fail_threshold = cs~load_uint(32);
-   
-    cs.end_parse();
    return (proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold);
  }
+
+
 
 (int, slice, slice ,cell,int,cell) get_dao_data() method_id {
    var (dao_type, token_contract, nft_contract, content ,proposals_seq , proposals_dict ) = load_data();

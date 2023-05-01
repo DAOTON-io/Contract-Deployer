@@ -41,7 +41,7 @@ export default class DaoContract implements Contract {
     const messageBody = beginCell()
       .storeUint(1, 32) // op (op #1 = create proposal)
       .storeUint(Date.now(), 64) // timestamp
-      .storeUint(100, 32) // success threshold
+      .storeUint(200, 32) // success threshold
       .storeUint(5, 32) // fail threshold
       .endCell();
 
@@ -65,15 +65,15 @@ export default class DaoContract implements Contract {
     } catch {}
   };
 
-  getProposal = async (provider: ContractProvider) => {
-    // const { stack } = await provider.get("get_proposal", [
-    //   {
-    //     type: "int",
-    //     value: BigInt(1),
-    //   },
-    // ]);
+  getProposal = async (provider: ContractProvider, id: number) => {
+    const { stack } = await provider.get("get_proposal", [
+      {
+        type: "int",
+        value: BigInt(id),
+      },
+    ]);
 
-    const { stack } = await provider.get("get_proposal", []);
+    // const { stack } = await provider.get("get_proposal", []);
 
     console.log(stack);
 
