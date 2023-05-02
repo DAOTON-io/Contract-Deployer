@@ -1,4 +1,4 @@
-import { Contract, ContractProvider, Sender, Address, Cell, contractAddress, beginCell, Dictionary } from "ton-core";
+import { Contract, ContractProvider, Sender, Address, Cell, contractAddress, beginCell, Dictionary, Slice } from "ton-core";
 import { DaoContent } from "./models/DaoContent";
 
 export default class DaoContract implements Contract {
@@ -38,11 +38,18 @@ export default class DaoContract implements Contract {
   }
 
   async sendProposal(provider: ContractProvider, via: Sender) {
+    // const messageBody = beginCell()
+    //   .storeUint(1, 32) // op (op #1 = create proposal)
+    //   .storeUint(Date.now(), 64) // timestamp
+    //   .storeUint(58, 32) // success threshold
+    //   .storeUint(43, 32) // fail threshold
+    //   .storeStringRefTail("123")
+    //   .endCell();
+
     const messageBody = beginCell()
-      .storeUint(1, 32) // op (op #1 = create proposal)
-      .storeUint(Date.now(), 64) // timestamp
-      .storeUint(200, 32) // success threshold
-      .storeUint(5, 32) // fail threshold
+      .storeUint(2, 32) // op (op #2 = vote)
+      .storeUint(0, 32) // propsal_id
+      .storeUint(0, 2) // vote
       .endCell();
 
     await provider.internal(via, {

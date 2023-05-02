@@ -33,7 +33,6 @@ export async function createProposalTest(address: string) {
   const dao = new DaoContract(daoAddress);
   const daoContract = client.open(dao);
 
-  // send the increment transaction
   await daoContract.sendProposal(walletSender);
 
   // wait until confirmed
