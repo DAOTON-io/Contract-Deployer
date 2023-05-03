@@ -1,0 +1,41 @@
+;; =============== storage =============================
+
+(cell,int) load_data() inline {
+  var ds = get_data().begin_parse();
+
+  
+  return (ds~load_dict(), ds~load_uint(2));
+}
+
+() save_data(cell list, int version) impure inline {
+  set_data(begin_cell()
+    .store_dict(list)
+    .store_uint(version,2)
+    .end_cell());
+}
+
+;; =============== messages =============================
+
+() recv_internal(int msg_value, cell in_msg, slice in_msg_body) impure {
+  if (in_msg_body.slice_empty?()) { 
+    return (); 
+  }
+
+  int op = in_msg_body~load_uint(32);
+  int contract = in_msg_body~load_uint(256);
+
+  var (list , version) = load_data();
+
+  if (op == 1) {
+    list = udict_set_builder(list, 256, contract, begin_cell());
+
+    save_data(list,version);
+  }
+}
+
+
+(cell,int) get_current_data () method_id {
+  var (list,version) = load_data();
+
+  return (list , version);
+}
