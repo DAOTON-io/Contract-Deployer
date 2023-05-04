@@ -35,8 +35,8 @@ async function newContractCreateTest(address: string) {
 //   //   });
 //   // });
 // });
-// createProposalTest("EQCov901r3EQ8YfyNZ92Nz5B2Jswv9LdVms1jjQIUjo1jpdi").then(() => {
+// createProposalTest("EQBZasiIfJG_xRoBPRMEpMWL6fsQCJNZORoQ0tTQosb7Rxgx").then(() => {
 //   console.log("3");
 //   // newContractCreateTest("EQCM32Frx8tFMBt673-BVz0KblSurtEIIckKAGietjeAj2Tb");
 // });
-// newContractCreateTest("EQCov901r3EQ8YfyNZ92Nz5B2Jswv9LdVms1jjQIUjo1jpdi");
+newContractCreateTest("EQBZasiIfJG_xRoBPRMEpMWL6fsQCJNZORoQ0tTQosb7Rxgx");

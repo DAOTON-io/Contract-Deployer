@@ -38,12 +38,20 @@ export default class DaoContract implements Contract {
   }
 
   async sendProposal(provider: ContractProvider, via: Sender) {
+    const daoContract = Address.parse("EQCeq1eEbTzsc1BWdgyPH_Q_vEk8miKjDVXKk6ZwCAdHVxj9");
+
     // const messageBody = beginCell()
     //   .storeUint(1, 32) // op (op #1 = create proposal)
     //   .storeUint(Date.now(), 64) // timestamp
-    //   .storeUint(58, 32) // success threshold
-    //   .storeUint(43, 32) // fail threshold
-    //   .storeStringRefTail("123")
+    //   .storeCoins(100) // success threshold
+    //   .storeCoins(20) // fail threshold
+    //   .storeUint(0, 2)
+    //   .storeRef(
+    //     beginCell()
+    //       .storeBuffer(Buffer.from(JSON.stringify({ name: "xxxx" })))
+    //       .endCell()
+    //   )
+    //   // .storeAddress(daoContract)
     //   .endCell();
 
     const messageBody = beginCell()
