@@ -36,13 +36,13 @@ cell design_proposal(int owner,int timestamp ,int threshold_success ,int thresho
     ;; Serialize proposal
     var container = begin_cell()
         .store_uint(owner,256) ;; proposal creater = master of proposal for cancel , execute ect.
-        .store_uint(yes,32) ;; yes count
-        .store_uint(no,32) ;; no count
-        .store_uint(abstain,32) ;; abstain count
+        .store_coins(yes) ;; yes count
+        .store_coins(no) ;; no count
+        .store_coins(abstain) ;; abstain count
         .store_uint(timestamp,64) ;; expire time
         .store_ref(begin_cell() ;;  
-            .store_uint(threshold_success,32)
-            .store_uint(threshold_fail,32)
+            .store_coins(threshold_success)
+            .store_coins(threshold_fail)
             .store_uint(is_related_with_nft, 2) ;; nft relation true | false
             .store_ref(content) ;; description , question text
         .end_cell()) ;; votes
@@ -58,15 +58,15 @@ cell design_proposal(int owner,int timestamp ,int threshold_success ,int thresho
 
     ;; Read
     int owner = itm~load_uint(256);
-    int proposal_voted_yes = itm~load_uint(32);
-    int proposal_voted_no = itm~load_uint(32);
-    int proposal_voted_abstain = itm~load_uint(32);
+    int proposal_voted_yes = itm~load_coins();
+    int proposal_voted_no = itm~load_coins();
+    int proposal_voted_abstain = itm~load_coins();
     int timestamp = itm~load_uint(64);
     cell threshold_ref = itm~load_ref();
 
     var threshold_data = threshold_ref.begin_parse();
-    int success_threshold = threshold_data~load_uint(32);
-    int fail_threshold = threshold_data~load_uint(32);
+    int success_threshold = threshold_data~load_coins();
+    int fail_threshold = threshold_data~load_coins();
     int is_related_with_nft = threshold_data~load_uint(2);
     cell content = threshold_data~load_ref();
 
@@ -97,8 +97,8 @@ cell design_proposal(int owner,int timestamp ,int threshold_success ,int thresho
  ;; op1 = create proposal
   if(op == 1){
    int timestamp = in_msg_body~load_uint(64); ;; timestamp
-   int success_threshold = in_msg_body~load_uint(32); ;; success_threshold
-   int fail_threshold = in_msg_body~load_uint(32); ;; fail_threshold
+   int success_threshold = in_msg_body~load_coins(); ;; success_threshold
+   int fail_threshold = in_msg_body~load_coins(); ;; fail_threshold
    int is_related_with_nft = in_msg_body~load_uint(2); ;; nft relationship true | false
    cell content = in_msg_body~load_ref();
        
