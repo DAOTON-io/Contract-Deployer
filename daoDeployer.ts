@@ -16,6 +16,9 @@ export const deploy = async () => {
 
   // prepare contract's initial code and data cells for deployment
   const contractCode = Cell.fromBoc(fs.readFileSync("contract.cell"))[0]; // compilation output from step 6
+
+  const contractHex = Cell.fromBoc(fs.readFileSync("contract.cell"))[0].toBoc().toString("hex");
+
   const initialContractValue = Date.now(); // to avoid collisions use current number of milliseconds since epoch as initial value
   const tokenContract = Address.parse("kQDyNhhx8N1Uy_jF4b1cT_CUFLsHKP6IwP6CwpsqBSM1tUJ1");
   const nftContract = Address.parse("kQDyNhhx8N1Uy_jF4b1cT_CUFLsHKP6IwP6CwpsqBSM1tUJ1");
