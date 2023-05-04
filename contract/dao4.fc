@@ -32,10 +32,11 @@ return (dao_type, token_contract, nft_contract,content ,proposals_seq,proposals_
     .end_cell());
 }
 
-cell design_proposal(int owner,int timestamp ,int threshold_success ,int threshold_fail, cell proposals_dict, int proposal_id, int yes,int no, int abstain,cell votes,int is_related_with_nft,cell content) { 
+cell design_proposal(int owner,int balance,int timestamp ,int threshold_success ,int threshold_fail, cell proposals_dict, int proposal_id, int yes,int no, int abstain,cell votes,int is_related_with_nft,cell content) { 
     ;; Serialize proposal
     var container = begin_cell()
         .store_uint(owner,256) ;; proposal creater = master of proposal for cancel , execute ect.
+        .store_coins(balance) ;; proposal init balance
         .store_coins(yes) ;; yes count
         .store_coins(no) ;; no count
         .store_coins(abstain) ;; abstain count
@@ -51,13 +52,14 @@ cell design_proposal(int owner,int timestamp ,int threshold_success ,int thresho
   return udict_set_builder(proposals_dict,32, proposal_id , container);
 }
 
-(int,int,int,int,int,int,int,cell,int,cell) get_proposal(int id) method_id {
+(int,int,int,int,int,int,int,int,cell,int,cell) get_proposal(int id) method_id {
   var (dao_type, token_contract, nft_contract, content ,proposals_seq, proposals_dict ) = load_data();
 
     var (itm, found) = proposals_dict.udict_get?(32, id);
 
     ;; Read
     int owner = itm~load_uint(256);
+    int balance = itm~load_coins();
     int proposal_voted_yes = itm~load_coins();
     int proposal_voted_no = itm~load_coins();
     int proposal_voted_abstain = itm~load_coins();
@@ -74,7 +76,30 @@ cell design_proposal(int owner,int timestamp ,int threshold_success ,int thresho
 
     cell votes = itm~load_dict();
 
-    return (owner,proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold, votes,is_related_with_nft,content);
+    return (owner,balance,proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold, votes,is_related_with_nft,content);
+}
+
+() execute_proposal(int proposal_id, int admin, slice target_address) impure {
+ var (owner,balance,proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold,votes,is_related_with_nft,content) = get_proposal(proposal_id);
+
+ throw_unless(error::invalid_message(), owner == admin);
+
+  ;; Basic message
+      
+  var msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(target_address)
+            .store_coins(balance)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32);
+
+            ;; State init
+            msg = msg.store_uint(0, 1);
+      
+            ;; Payload
+            msg = msg.store_uint(0, 1);
+        
+            ;; Send message
+  send_raw_message(msg.end_cell(), 1 + 2);
 }
 
 ;; init state
@@ -96,13 +121,14 @@ cell design_proposal(int owner,int timestamp ,int threshold_success ,int thresho
 
  ;; op1 = create proposal
   if(op == 1){
+   int balance = in_msg_body~load_coins(); 
    int timestamp = in_msg_body~load_uint(64); ;; timestamp
    int success_threshold = in_msg_body~load_coins(); ;; success_threshold
    int fail_threshold = in_msg_body~load_coins(); ;; fail_threshold
    int is_related_with_nft = in_msg_body~load_uint(2); ;; nft relationship true | false
    cell content = in_msg_body~load_ref();
        
-   proposals_dict = design_proposal(member,timestamp, success_threshold, fail_threshold , proposals_dict,proposals_seq ,0 , 0 , 0, null(),is_related_with_nft,content);
+   proposals_dict = design_proposal(member,balance,timestamp, success_threshold, fail_threshold , proposals_dict,proposals_seq ,0 , 0 , 0, null(),is_related_with_nft,content);
 
    save_data(dao_type, token_contract, nft_contract,content, proposals_seq + 1, proposals_dict);
    return ();
@@ -114,10 +140,10 @@ cell design_proposal(int owner,int timestamp ,int threshold_success ,int thresho
   int proposal_id = in_msg_body~load_uint(32);
   int vote = in_msg_body~load_uint(2);
    
-  var (owner,proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold,votes,is_related_with_nft,content) = get_proposal(proposal_id);
+  var (owner,balance,proposal_voted_yes,proposal_voted_no,proposal_voted_abstain,timestamp,success_threshold,fail_threshold,votes,is_related_with_nft,content) = get_proposal(proposal_id);
 
-   var (vs, vfound) = votes.udict_get?(256, member);
-   throw_if(error::invalid_message(), vfound);
+  var (vs, vfound) = votes.udict_get?(256, member);
+  throw_if(error::invalid_message(), vfound);
 
   ;; abstain vote
   if(vote == 0){
@@ -137,16 +163,26 @@ cell design_proposal(int owner,int timestamp ,int threshold_success ,int thresho
     votes = udict_set_builder(votes, 256, member, begin_cell().store_uint(2,2));
   }
   
-  proposals_dict = design_proposal(owner,timestamp, success_threshold, fail_threshold , proposals_dict,proposal_id ,proposal_voted_yes , proposal_voted_no, proposal_voted_abstain,votes,is_related_with_nft,content);
+  proposals_dict = design_proposal(owner,balance,timestamp, success_threshold, fail_threshold , proposals_dict,proposal_id ,proposal_voted_yes , proposal_voted_no, proposal_voted_abstain,votes,is_related_with_nft,content);
 
   save_data(dao_type, token_contract, nft_contract,content, proposals_seq, proposals_dict);
   return ();
+  }
+
+  ;; op3 = execute proposal
+  if(op == 3){
+    int proposal_id = in_msg_body~load_uint(32);
+    slice target_address =  in_msg_body~load_msg_addr();
+
+    execute_proposal(proposal_id, member,target_address);
+
+    return ();
   }
   
 }
 
 (int, slice, slice ,cell,int,cell) get_dao_data() method_id {
-   var (dao_type, token_contract, nft_contract, content ,proposals_seq , proposals_dict) = load_data();
+  var (dao_type, token_contract, nft_contract, content ,proposals_seq , proposals_dict) = load_data();
 
-   return (dao_type, token_contract, nft_contract,content, proposals_seq, proposals_dict);
+  return (dao_type, token_contract, nft_contract,content, proposals_seq, proposals_dict);
  }
