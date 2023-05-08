@@ -34,7 +34,7 @@
 }
 
 
-(cell,int) get_current_data () method_id {
+(cell,int) get_current_data() method_id {
   var (list,version) = load_data();
 
   return (list , version);

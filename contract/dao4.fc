@@ -119,15 +119,43 @@ cell design_proposal(int owner,int balance,int timestamp ,int threshold_success 
 
   int op = in_msg_body~load_uint(32);
 
+  if(op == 0) {
+   slice dao_contract = in_msg_body~load_msg_addr();
+   slice daoton_contract = in_msg_body~load_msg_addr();
+   (int wc, slice daoton_address) = parse_var_addr(dao_contract);
+   int dao_current_address = daoton_address~load_uint(256);
+
+       var msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(daoton_contract)
+            .store_coins(10000000)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32);
+
+            ;; State init
+            msg = msg.store_uint(0, 1);
+
+            ;; Payload
+            msg = msg.store_uint(1, 1);
+
+            var msg_body = begin_cell()
+                      .store_uint(1, 32)
+                      .store_uint(dao_current_address, 256) ;; dao contract id 
+                      .end_cell();
+
+            msg = msg.store_ref(msg_body);
+            ;; Send message
+            send_raw_message(msg.end_cell(), 1 + 2);
+  }
+
  ;; op1 = create proposal
   if(op == 1){
    int balance = in_msg_body~load_coins(); 
    int timestamp = in_msg_body~load_uint(64); ;; timestamp
    int success_threshold = in_msg_body~load_coins(); ;; success_threshold
    int fail_threshold = in_msg_body~load_coins(); ;; fail_threshold
-   int is_related_with_nft = in_msg_body~load_uint(2); ;; nft relationship true | false
+   int is_related_with_nft = in_msg_body~load_uint(2); ;; nft relationship true | false
    cell content = in_msg_body~load_ref();
-       
+
    proposals_dict = design_proposal(member,balance,timestamp, success_threshold, fail_threshold , proposals_dict,proposals_seq ,0 , 0 , 0, null(),is_related_with_nft,content);
 
    save_data(dao_type, token_contract, nft_contract,content, proposals_seq + 1, proposals_dict);

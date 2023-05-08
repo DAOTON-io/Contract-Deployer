@@ -22,7 +22,7 @@ async function newContractCreateTest(address: string) {
 
   // await contract.getProposal();
   // await contract.getProposal();
-  await contract.getProposal(0);
+  await contract.getDaoData();
 }
 
 // deploy().then((data) => {
@@ -39,4 +39,4 @@ async function newContractCreateTest(address: string) {
 //   console.log("3");
 //   // newContractCreateTest("EQCM32Frx8tFMBt673-BVz0KblSurtEIIckKAGietjeAj2Tb");
 // });
-newContractCreateTest("EQBZasiIfJG_xRoBPRMEpMWL6fsQCJNZORoQ0tTQosb7Rxgx");
+newContractCreateTest("EQBQRTkM-tKgHZdOggw5bSxTdbku7Pyd60YLJwEHfQhFtRdr");

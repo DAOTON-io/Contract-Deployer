@@ -30,10 +30,15 @@ export default class DaoContract implements Contract {
     //   .storeUint(100, 32) // success threshold
     //   .storeUint(1, 32) // fail threshold
     //   .endCell();
+
+    const daotonAddress = Address.parse("EQBQRTkM-tKgHZdOggw5bSxTdbku7Pyd60YLJwEHfQhFtRdr");
+
+    const body = beginCell().storeUint(0, 32).storeAddress(this.address).storeAddress(daotonAddress).endCell();
+
     await provider.internal(via, {
-      value: "0.01", // send 0.01 TON to contract for rent
+      value: "0.02", // send 0.01 TON to contract for rent
       bounce: false,
-      // body: messageBody,
+      body,
     });
   }
 
@@ -81,7 +86,7 @@ export default class DaoContract implements Contract {
 
   getDaoData = async (provider: ContractProvider) => {
     try {
-      const { stack } = await provider.get("get_dao_data", []);
+      const { stack } = await provider.get("get_current_data", []);
       console.log(stack);
       // console.log("dao type id: ", stack.readBigNumber().toString());
       // console.log("token address: ", stack.readAddress().toString());
