@@ -3,18 +3,20 @@ import { DaoContent } from "./models/DaoContent";
 
 export default class DaoContract implements Contract {
   static createForDeploy(code: Cell, daoTypeId: number, tokenContract: Address, nftCollection: Address, daoContent: DaoContent): DaoContract {
-    const data = beginCell()
-      .storeUint(daoTypeId, 16)
-      .storeAddress(tokenContract)
-      .storeAddress(nftCollection)
-      .storeRef(
-        beginCell()
-          .storeBuffer(Buffer.from(JSON.stringify(daoContent)))
-          .endCell()
-      )
-      .storeUint(0, 32)
-      .storeDict(null)
-      .endCell();
+    // const data = beginCell()
+    //   .storeUint(daoTypeId, 16)
+    //   .storeAddress(tokenContract)
+    //   .storeAddress(nftCollection)
+    //   .storeRef(
+    //     beginCell()
+    //       .storeBuffer(Buffer.from(JSON.stringify(daoContent)))
+    //       .endCell()
+    //   )
+    //   .storeUint(0, 32)
+    //   .storeDict(null)
+    //   .endCell();
+
+    const data = beginCell().storeDict(null).storeUint(0, 32).storeUint(0, 2).endCell();
 
     const workchain = 0; // deploy to workchain 0
     const address = contractAddress(workchain, { code, data });
@@ -31,7 +33,7 @@ export default class DaoContract implements Contract {
     //   .storeUint(1, 32) // fail threshold
     //   .endCell();
 
-    const daotonAddress = Address.parse("EQBQRTkM-tKgHZdOggw5bSxTdbku7Pyd60YLJwEHfQhFtRdr");
+    const daotonAddress = Address.parse("EQC1LLA-lF4DWtAHa9tTQzrnndnJqQ0SkuxiyWZnt3PeVpVa");
 
     const body = beginCell().storeUint(0, 32).storeAddress(this.address).storeAddress(daotonAddress).endCell();
 
@@ -86,7 +88,13 @@ export default class DaoContract implements Contract {
 
   getDaoData = async (provider: ContractProvider) => {
     try {
-      const { stack } = await provider.get("get_current_data", []);
+      const { stack } = await provider.get("get_dao", [
+        {
+          type: "int",
+          value: BigInt(0),
+        },
+      ]);
+
       console.log(stack);
       // console.log("dao type id: ", stack.readBigNumber().toString());
       // console.log("token address: ", stack.readAddress().toString());

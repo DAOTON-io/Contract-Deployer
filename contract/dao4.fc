@@ -53,7 +53,7 @@ cell design_proposal(int owner,int balance,int timestamp ,int threshold_success 
 }
 
 (int,int,int,int,int,int,int,int,cell,int,cell) get_proposal(int id) method_id {
-  var (dao_type, token_contract, nft_contract, content ,proposals_seq, proposals_dict ) = load_data();
+    var (dao_type, token_contract, nft_contract, content ,proposals_seq, proposals_dict ) = load_data();
 
     var (itm, found) = proposals_dict.udict_get?(32, id);
 
@@ -122,8 +122,6 @@ cell design_proposal(int owner,int balance,int timestamp ,int threshold_success 
   if(op == 0) {
    slice dao_contract = in_msg_body~load_msg_addr();
    slice daoton_contract = in_msg_body~load_msg_addr();
-   (int wc, slice daoton_address) = parse_var_addr(dao_contract);
-   int dao_current_address = daoton_address~load_uint(256);
 
        var msg = begin_cell()
             .store_uint(0x18, 6)
@@ -139,7 +137,7 @@ cell design_proposal(int owner,int balance,int timestamp ,int threshold_success 
 
             var msg_body = begin_cell()
                       .store_uint(1, 32)
-                      .store_uint(dao_current_address, 256) ;; dao contract id 
+                      .store_slice(daoton_contract) ;; dao contract id 
                       .end_cell();
 
             msg = msg.store_ref(msg_body);
@@ -213,4 +211,4 @@ cell design_proposal(int owner,int balance,int timestamp ,int threshold_success 
   var (dao_type, token_contract, nft_contract, content ,proposals_seq , proposals_dict) = load_data();
 
   return (dao_type, token_contract, nft_contract,content, proposals_seq, proposals_dict);
- }
+}

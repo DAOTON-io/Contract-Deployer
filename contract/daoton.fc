@@ -1,15 +1,19 @@
 ;; =============== storage =============================
 
-(cell,int) load_data() inline {
+(cell,int,int) load_data() inline {
   var ds = get_data().begin_parse();
 
+  cell daolist = ds~load_dict();
+  int seq =  ds~load_uint(32);
+  int version = ds~load_uint(2);
   
-  return (ds~load_dict(), ds~load_uint(2));
+  return (daolist,seq,version);
 }
 
-() save_data(cell list, int version) impure inline {
+() save_data(cell list,int seq ,int version) impure inline {
   set_data(begin_cell()
     .store_dict(list)
+    .store_uint(seq,32)
     .store_uint(version,2)
     .end_cell());
 }
@@ -22,20 +26,53 @@
   }
 
   int op = in_msg_body~load_uint(32);
-  int contract = in_msg_body~load_uint(256);
+  slice contract = in_msg_body~load_msg_addr();
 
-  var (list , version) = load_data();
+  var (list ,seq, version) = load_data();
 
   if (op == 1) {
-    list = udict_set_builder(list, 256, contract, begin_cell());
+    list = udict_set_builder(list, 256, seq, begin_cell().store_slice(contract));
 
-    save_data(list,version);
+    save_data(list,seq + 1 ,version);
   }
 }
 
+(int) get_dao(int id) method_id {
+  var (list,seq,version) = load_data();
 
-(cell,int) get_current_data() method_id {
-  var (list,version) = load_data();
+  var (itm, found) = list.udict_get?(256, id);
 
-  return (list , version);
+  slice daoton_contract = itm~load_msg_addr();
+  (int wc, slice daoton_address) = parse_var_addr(daoton_contract);
+  int dao_current_address = daoton_address~load_uint(256);
+
+  return (dao_current_address);
+}
+
+;; int get_dao(int id ) method_id {
+;;   var (list,seq,version) = load_data();
+;;   int i = 0;
+;;   tuple daolist = null();
+
+;;    do { 
+;;      (int data, var cs, var f) = list.udict_get_next?(256, i);
+  
+;;     if (f) {
+;;     slice daoton_contract = cs~load_msg_addr();
+;;     (int wc, slice daoton_address) = parse_var_addr(daoton_contract);
+;;     int dao_current_address = daoton_address~load_uint(256);
+
+;;     daolist = cons(dao_current_address,daolist);
+
+;;     i = i + 1;
+;;     }
+;;    } until ((~ f));
+
+;;   return daolist;
+;; }
+
+(cell,int,int) get_current_data() method_id {
+  var (list,seq,version) = load_data();
+
+  return (list ,seq , version);
 }
